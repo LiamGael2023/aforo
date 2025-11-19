@@ -3,6 +3,10 @@
 let mainChart = null;
 let selectedStationId = null;
 
+// Detectar base path para las llamadas API
+const basePath = document.querySelector('script[src*="dashboard.js"]')?.src.replace(/\/js\/dashboard\.js.*$/, '') || '';
+const apiBase = basePath.replace(/^https?:\/\/[^\/]+/, '');
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
@@ -26,7 +30,7 @@ async function loadDashboard() {
 // Cargar resumen
 async function loadSummary() {
     try {
-        const response = await fetch('/api/dashboard/summary');
+        const response = await fetch(`${apiBase}/api/dashboard/summary`);
         const data = await response.json();
 
         document.getElementById('totalStations').textContent = data.active_stations;
@@ -41,7 +45,7 @@ async function loadSummary() {
 // Cargar estaciones
 async function loadStations() {
     try {
-        const response = await fetch('/api/stations/with-latest');
+        const response = await fetch(`${apiBase}/api/stations/with-latest`);
         const stations = await response.json();
 
         const container = document.getElementById('stationsList');
@@ -115,7 +119,7 @@ async function loadChartData() {
     }
 
     try {
-        const response = await fetch(`/api/dashboard/charts/${stationId}?hours=24`);
+        const response = await fetch(`${apiBase}/api/dashboard/charts/${stationId}?hours=24`);
         const data = await response.json();
         renderChart(data);
     } catch (error) {
@@ -191,7 +195,7 @@ function renderChart(data) {
 // Cargar alertas
 async function loadAlerts() {
     try {
-        const response = await fetch('/api/alerts?active_only=true');
+        const response = await fetch(`${apiBase}/api/alerts?active_only=true`);
         const alerts = await response.json();
 
         const container = document.getElementById('alertsList');
@@ -220,7 +224,7 @@ async function loadAlerts() {
 // Cargar últimas mediciones
 async function loadLatestMeasurements() {
     try {
-        const response = await fetch('/api/measurements/latest?limit=10');
+        const response = await fetch(`${apiBase}/api/measurements/latest?limit=10`);
         const measurements = await response.json();
 
         const tbody = document.getElementById('measurementsTable');
@@ -268,7 +272,7 @@ async function createStation(event) {
     };
 
     try {
-        const response = await fetch('/api/stations', {
+        const response = await fetch(`${apiBase}/api/stations`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(station)
@@ -303,7 +307,7 @@ async function createMeasurement(event) {
     };
 
     try {
-        const response = await fetch('/api/measurements', {
+        const response = await fetch(`${apiBase}/api/measurements`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(measurement)
@@ -331,7 +335,7 @@ async function seedData() {
     }
 
     try {
-        const response = await fetch('/api/seed-data', { method: 'POST' });
+        const response = await fetch(`${apiBase}/api/seed-data`, { method: 'POST' });
         const result = await response.json();
         alert(result.message);
         loadDashboard();
